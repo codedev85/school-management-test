@@ -21,13 +21,16 @@ class Course extends Seeder
                         'Chemistry','Further Maths','Geology',
                         'Business Admin','GNS101' , 'GNS102',
                          'Pascal','Fortran','Biology'];
-        for ($i=0; $i < count($courseList); $i++) {
+
+        for ($i=0; $i < count($courseList); $i++)
+        {
             $courses[] = [
                 'name' => $courseList[$i],
             ];
         }
 
-        foreach ($courses as $course) {
+        foreach ($courses as $course)
+        {
             CourseData::create($course);
         }
     }

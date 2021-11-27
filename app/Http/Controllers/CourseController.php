@@ -8,14 +8,17 @@ use Illuminate\Http\Request;
 
 class CourseController extends Controller
 {
+
     /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\View\View
      */
     public function index()
     {
+        /**
+         * @var Course $courses
+         */
         $courses = Course::all();
+        
         return view('course.index',compact('courses'));
     }
 
@@ -41,6 +44,9 @@ class CourseController extends Controller
             'name' => 'required',
         ]);
 
+        /**
+         * @var Course $course
+         */
         $course = new Course();
         $course->create($data);
 
@@ -57,8 +63,14 @@ class CourseController extends Controller
      */
     public function show(Course $course)
     {
+        /**
+         * @var Student $students
+         */
         $students = \App\Models\Student::all();
 
+        /**
+         * @var Course $course
+         */
         $course = Course::where('id',$course->id)->with('students')->first();
 
         return view('course.show',compact('course','students'));
@@ -104,8 +116,11 @@ class CourseController extends Controller
      */
     public function destroy(Course $course)
     {
-        $student = Course::find($course->id);
-        $student->delete();
+        /**
+         * @var Course $course
+         */
+        $course = Course::find($course->id);
+        $course->delete();
 
         toastr()->success('Course deleted successfully');
 
@@ -119,7 +134,15 @@ class CourseController extends Controller
             'student_id' => 'required|integer'
         ]);
 
+        /**
+         * @var Course $course
+         */
+
         $course = Course::where('id',$course_id)->firstorfail();
+
+        /**
+         * @var Course $isAttached
+         */
 
         $isAttached =  $course->students()->syncWithoutDetaching($data['student_id']);
 
@@ -134,8 +157,18 @@ class CourseController extends Controller
 
     }
 
+    /**
+     * @param Student $student_id
+     * @param Course $course_id
+     * @return \Illuminate\Http\RedirectResponse
+     */
+
     public function unassignCourse($student_id , $course_id)
     {
+        /**
+         * @var Student $student
+         */
+
         $student = Student::where('id',$student_id)->firstorfail();
 
         $student->courses()->detach($course_id);

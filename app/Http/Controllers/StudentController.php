@@ -2,15 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Course;
 use App\Models\Student;
 use Illuminate\Http\Request;
 
 class StudentController extends Controller
 {
+
     /**
-     * Display a listing of the resource.
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\View\View
+     * @var Student $students
      *
-     * @return \Illuminate\Http\Response
      */
     public function index()
     {
@@ -20,10 +22,10 @@ class StudentController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Contracts\Foundation\Application|
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\View\View
      */
+
     public function create()
     {
         return  view('student.create');
@@ -42,6 +44,10 @@ class StudentController extends Controller
             'email' => 'required|email|unique:students'
         ]);
 
+        /**
+         * @var Student
+         */
+
        $student = new Student();
        $student->create($data);
 
@@ -55,12 +61,19 @@ class StudentController extends Controller
      * Display the specified resource.
      *
      * @param  \App\Models\Student  $student
-     * @return \Illuminate\Http\Response
+     *
+     * @return \Illuminate\Contracts\View\View|\Illuminate\View\View
      */
     public function show(Student $student)
     {
-        $courses = \App\Models\Course::all();
+        /**
+         * @var Course $courses
+         */
+        $courses = Course::all();
 
+        /**
+         * @var Student $user
+         */
         $user = Student::where('id',$student->id)->with('courses')->first();
 
         return view('student.show',compact('user','courses'));
@@ -70,7 +83,7 @@ class StudentController extends Controller
      * Show the form for editing the specified resource.
      *
      * @param  \App\Models\Student  $student
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Contracts\View\View|\Illuminate\View\View
      */
     public function edit(Student $student)
     {
@@ -110,6 +123,9 @@ class StudentController extends Controller
     public function destroy(Student $student)
     {
         // delete
+        /**
+         * @var Student $student
+         */
         $student = Student::find($student->id);
         $student->delete();
 
@@ -120,13 +136,26 @@ class StudentController extends Controller
 
     }
 
+    /**
+     * @param Request $request
+     * @param Student $student_id
+     * @return \Illuminate\Http\RedirectResponse
+     */
  public function assignCourse(Request $request , $student_id)
  {
-   $data  =  request()->validate([
-         'course_id' => 'required|integer'
-     ]);
+       $data  =  request()->validate([
+             'course_id' => 'required|integer'
+         ]);
 
-      $student = \App\Models\Student::where('id',$student_id)->firstorfail();
+      /**
+      * @var Student $student
+      */
+
+      $student = Student::where('id',$student_id)->firstorfail();
+
+     /**
+      * @var $isAttached
+      */
 
       $isAttached =  $student->courses()->syncWithoutDetaching($data['course_id']);
 
@@ -141,8 +170,17 @@ class StudentController extends Controller
 
  }
 
+    /**
+     * @param $student_id
+     * @param $course_id
+     * @return \Illuminate\Http\RedirectResponse
+     */
+
  public function unassignCourse($student_id , $course_id)
  {
+     /**
+      * @var Student $student
+      */
      $student = Student::where('id',$student_id)->firstorfail();
 
      $student->courses()->detach($course_id);
